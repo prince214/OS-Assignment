@@ -16,16 +16,13 @@ void *InCricle() {
     long i;
     for (i = 0; i < points_per_thread; i++) {
 
-        /* Was initially using random(), but didn't appear to get performance
-         * improvement with threading. random() apparently uses some global state
-         * that is shared between threads, and isn't guaranteed to be threadsafe. */
-
         double x = rand_r(&rand_state) / ((double)RAND_MAX + 1) * 2.0 - 1.0;
         double y = rand_r(&rand_state) / ((double)RAND_MAX + 1) * 2.0 - 1.0;
 
         if (x * x + y * y < 1) {
 
             incircle_thread++;
+            printf("Point ( %lf , %lf ) inside circle of radius 1 unit\n", x, y);
 
         }
     }
@@ -49,10 +46,10 @@ int main()
     int count = 0,a,b;
 
     do {
-        printf("Enter the total no. of points you want to generate\n   ('Accuracy of pi ~ no. of points')\n");
+        printf("Enter the total no. of points you want to generate ('Accuracy of pi ~ no. of points')\n");
         a = scanf("%ld",&totalpoints); 
 
-        printf("No. of threads you want to use for calulation\n   ('faster caluclation ~ no. of points ~ (depends on C.P.U.)')\n");
+        printf("No. of threads you want to use for calulation ('faster caluclation ~ no. of points ~ (depends on C.P.U.)')\n");
         b = scanf("%d",&thread_count);
 
     } while( thread_count <= 0 | totalpoints <= 0 | a != 1 | b != 1 );
