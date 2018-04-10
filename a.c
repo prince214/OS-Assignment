@@ -22,7 +22,7 @@ void *InCricle() {
         if (x * x + y * y < 1) {
 
             incircle_thread++;
-            printf("Point ( %lf , %lf ) inside circle of radius 1 unit\n", x, y);
+            printf("Point %ld ( %lf , %lf ) inside circle of radius 1 unit\n", i+1,x, y);
 
         }
     }
@@ -36,7 +36,7 @@ void *InCricle() {
     // printf("Value shared variable after updation: %ld\n", incircle);
 }
 
-/* Calculate Pi by the Monte Carlo method. */
+/* Calculate Pi by the Monte Carlo method. Single/Multi Threaded Program. */
 
 int main()
 {
@@ -46,11 +46,28 @@ int main()
     int count = 0,a,b;
 
     do {
+        
         printf("Enter the total no. of points you want to generate ('Accuracy of pi ~ no. of points')\n");
         a = scanf("%ld",&totalpoints); 
 
+        printf("\n");
+
         printf("No. of threads you want to use for calulation ('faster caluclation ~ no. of points ~ (depends on C.P.U.)')\n");
         b = scanf("%d",&thread_count);
+
+        count++;
+
+        if ( count == 3 ) {
+
+            exit(1);
+
+        } 
+
+        else if ( count == 2 ) {
+
+            printf("\nInvalid Input Enter Again\n");
+
+        }
 
     } while( thread_count <= 0 | totalpoints <= 0 | a != 1 | b != 1 );
 
@@ -58,16 +75,16 @@ int main()
 
     time_t start = time(NULL);
 
-    srand((unsigned)time(NULL));
+    printf("\nCalculating ...\n\n");
 
     pthread_t *threads = malloc(thread_count * sizeof(pthread_t));
 
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
+    // pthread_attr_t attr;
+    // pthread_attr_init(&attr);
 
     int i;
     for (i = 0; i < thread_count; i++) {
-        pthread_create(&threads[i], &attr, InCricle, (void *) NULL);
+        pthread_create(&threads[i], NULL, InCricle, (void *) NULL);
     }
 
     for (i = 0; i < thread_count; i++) {
@@ -77,7 +94,7 @@ int main()
     pthread_mutex_destroy(&mutex);
     free(threads);
 
-    printf("Pi: %f\n", (4. * (double)incircle) / ((double)points_per_thread * thread_count));
+    printf("\nPi: %f\n", (4. * (double)incircle) / ((double)points_per_thread * thread_count));
     printf("Time: %d sec\n", (unsigned int)(time(NULL) - start));
 
     return 0;
