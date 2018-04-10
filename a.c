@@ -5,6 +5,7 @@
 
 long incircle = 0;
 long points_per_thread;
+long display_thread_count = 1;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -22,9 +23,10 @@ void *InCricle() {
         if (x * x + y * y < 1) {
 
             incircle_thread++;
-            printf("Point %ld ( %lf , %lf ) inside circle of radius 1 unit\n", i+1,x, y);
 
         }
+
+        // printf("Point %ld ( %lf , %lf ) inside circle of radius 1 unit\n", i+1,x, y);
     }
 
     // printf("Value of shared variable before updation: %ld\n", incircle);
@@ -79,23 +81,26 @@ int main()
 
     pthread_t *threads = malloc(thread_count * sizeof(pthread_t));
 
-    // pthread_attr_t attr;
-    // pthread_attr_init(&attr);
-
     int i;
     for (i = 0; i < thread_count; i++) {
+
+        // printf("\n\nThread %ld is calculating \n", display_thread_count);
+        // display_thread_count+=1;
+
         pthread_create(&threads[i], NULL, InCricle, (void *) NULL);
+
     }
 
     for (i = 0; i < thread_count; i++) {
+
         pthread_join(threads[i], NULL);
     }
 
     pthread_mutex_destroy(&mutex);
     free(threads);
 
-    printf("\nPi: %f\n", (4. * (double)incircle) / ((double)points_per_thread * thread_count));
-    printf("Time: %d sec\n", (unsigned int)(time(NULL) - start));
+    printf("\nFinal Estimated Value of Pi: %f\n", (4. * (double)incircle) / ((double)points_per_thread * thread_count));
+    printf("Time: %d sec\n\n", (unsigned int)(time(NULL) - start));
 
     return 0;
 }
