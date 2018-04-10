@@ -15,6 +15,7 @@ void *InCricle() {
 
     unsigned int rand_state = rand();
     long i;
+
     for (i = 0; i < points_per_thread; i++) {
 
         double x = rand_r(&rand_state) / ((double)RAND_MAX + 1) * 2.0 - 1.0;
@@ -26,7 +27,7 @@ void *InCricle() {
 
         }
 
-        // printf("Point %ld ( %lf , %lf ) inside circle of radius 1 unit\n", i+1,x, y);
+        // printf("\nPoint %ld ( %lf , %lf ) inside circle of diameter 1 unit", i+1,x, y);
     }
 
     // printf("Value of shared variable before updation: %ld\n", incircle);
@@ -34,6 +35,9 @@ void *InCricle() {
     pthread_mutex_lock(&mutex);
     incircle += incircle_thread;
     pthread_mutex_unlock(&mutex);
+
+    // printf("\nThread %ld is calculated \n", display_thread_count);
+    // display_thread_count+=1;
 
     // printf("Value shared variable after updation: %ld\n", incircle);
 }
@@ -45,10 +49,17 @@ int main()
     
     long totalpoints;
     int thread_count;
-    int count = 0,a,b;
+    int count = 1,a,b;
 
     do {
         
+        
+        if ( count == 2 ) {
+
+            printf("\nInvalid Input Enter Again | Thread count is too large\n");
+
+        }   
+
         printf("Enter the total no. of points you want to generate ('Accuracy of pi ~ no. of points')\n");
         a = scanf("%ld",&totalpoints); 
 
@@ -63,17 +74,17 @@ int main()
 
             exit(1);
 
-        } 
+        }      
 
-        else if ( count == 2 ) {
-
-            printf("\nInvalid Input Enter Again\n");
-
-        }
-
-    } while( thread_count <= 0 | totalpoints <= 0 | a != 1 | b != 1 );
+    } while( thread_count <= 0 | totalpoints <= 0 | a != 1 | b != 1 | thread_count > 12 );
 
     points_per_thread = totalpoints / thread_count;
+
+    if ( points_per_thread == 0 ) {
+
+        points_per_thread = 1;
+
+    }
 
     time_t start = time(NULL);
 
@@ -83,9 +94,6 @@ int main()
 
     int i;
     for (i = 0; i < thread_count; i++) {
-
-        // printf("\n\nThread %ld is calculating \n", display_thread_count);
-        // display_thread_count+=1;
 
         pthread_create(&threads[i], NULL, InCricle, (void *) NULL);
 
