@@ -3,53 +3,54 @@
 #include <stdlib.h>
 #include <time.h>
 
-long incircle = 0;
-long points_per_thread;
+long inside_circle = 0;
+long point_in_thread;
 long display_thread_count = 1;
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex;
 
 void *InCricle() {
 
-    long incircle_thread = 0;
+    long inside_circle_thread = 0;
 
     unsigned int rand_state = rand();
     long i;
 
-    for (i = 0; i < points_per_thread; i++) {
+    for (i = 0; i < point_in_thread; i++) {
 
-        double x = rand_r(&rand_state) / ((double)RAND_MAX + 1) * 2.0 - 1.0;
-        double y = rand_r(&rand_state) / ((double)RAND_MAX + 1) * 2.0 - 1.0;
+        double x = (double)rand()/RAND_MAX*2.0-1.0;
+        double y = (double)rand()/RAND_MAX*2.0-1.0;
 
         if (x * x + y * y < 1) {
 
-            incircle_thread++;
+            inside_circle_thread++;
 
         }
 
         // printf("\nPoint %ld ( %lf , %lf ) inside circle of diameter 1 unit", i+1,x, y);
     }
 
-    // printf("Value of shared variable before updation: %ld\n", incircle);
+    // printf("Value of shared variable before updation: %ld\n", inside_circle);
     
     pthread_mutex_lock(&mutex);
-    incircle += incircle_thread;
+    inside_circle += inside_circle_thread;
     pthread_mutex_unlock(&mutex);
 
     // printf("\nThread %ld is calculated \n", display_thread_count);
     // display_thread_count+=1;
 
-    // printf("Value shared variable after updation: %ld\n", incircle);
+    // printf("Value shared variable after updation: %ld\n", inside_circle);
 }
 
-/* Calculate Pi by the Monte Carlo method. Single/Multi Threaded Program. */
+/* Single/Multi Threaded Program to calculate Pi by using Monte Carlo method. */
 
 int main()
 {
     
-    long totalpoints;
+    long total_points;
     int thread_count;
     int count = 1,a,b;
+    pthread_mutex_init(&mutex, NULL);
 
     do {
         
@@ -61,7 +62,7 @@ int main()
         }   
 
         printf("Enter the total no. of points you want to generate ('Accuracy of pi ~ no. of points')\n");
-        a = scanf("%ld",&totalpoints); 
+        a = scanf("%ld",&total_points); 
 
         printf("\n");
 
@@ -76,13 +77,13 @@ int main()
 
         }      
 
-    } while( thread_count <= 0 | totalpoints <= 0 | a != 1 | b != 1 | thread_count > 12 );
+    } while( thread_count <= 0 | total_points <= 0 | a != 1 | b != 1 | thread_count > 12 );
 
-    points_per_thread = totalpoints / thread_count;
+    point_in_thread = total_points / thread_count;
 
-    if ( points_per_thread == 0 ) {
+    if ( point_in_thread == 0 ) {
 
-        points_per_thread = 1;
+        point_in_thread = 1;
 
     }
 
@@ -90,7 +91,7 @@ int main()
 
     printf("\nCalculating ...\n\n");
 
-    pthread_t *threads = malloc(thread_count * sizeof(pthread_t));
+    pthread_t threads[thread_count];
 
     int i;
     for (i = 0; i < thread_count; i++) {
@@ -105,9 +106,8 @@ int main()
     }
 
     pthread_mutex_destroy(&mutex);
-    free(threads);
 
-    printf("\nFinal Estimated Value of Pi: %f\n", (4. * (double)incircle) / ((double)points_per_thread * thread_count));
+    printf("\nFinal Estimated Value of Pi: %f\n", (4. * (double)inside_circle) / ((double)point_in_thread * thread_count));
     printf("Time: %d sec\n\n", (unsigned int)(time(NULL) - start));
 
     return 0;
